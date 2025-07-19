@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive ACA Compliance Workflow 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .step-card {
+            transition: opacity 0.5s ease-in-out;
+        }
+        .input-field {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-secondary {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+        .btn-secondary:hover {
+            background-color: #d1d5db;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-3xl">
+        <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl">
+            
+            <div class="text-center mb-8">
+                <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">ACA Compliance Workflow</h1>
+                <p class="text-gray-600 mt-2 text-lg">A Step-by-Step Guide for Employers (2025)</p>
+            </div>
+
+            <!-- Workflow Steps -->
+            <div id="workflow-container" class="space-y-8">
+
+                <!-- Step 1: ALE Determination -->
+                <div id="step1" class="step-card">
+                    <h2 class="text-2xl font-bold mb-4 border-b pb-2">Step 1: Determine Your Employer Size</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="full_time_employees" class="block text-sm font-medium text-gray-700 mb-1">Number of Full-Time Employees</label>
+                            <input type="number" id="full_time_employees" class="input-field" placeholder="e.g., 40">
+                            <p class="text-xs text-gray-500 mt-1">Employees typically working 30+ hours/week.</p>
+                        </div>
+                        <div>
+                            <label for="part_time_hours" class="block text-sm font-medium text-gray-700 mb-1">Total Monthly Hours for ALL Part-Time Employees</label>
+                            <input type="number" id="part_time_hours" class="input-field" placeholder="e.g., 1800">
+                             <p class="text-xs text-gray-500 mt-1">Combine the hours of all part-time staff for one month.</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 text-right">
+                        <button onclick="determineALE()" class="btn btn-primary">Calculate Employer Status</button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: ALE Status Result -->
+                <div id="step2" class="step-card hidden">
+                    <h2 class="text-2xl font-bold mb-4 border-b pb-2">Step 2: Your Employer Status</h2>
+                    <div id="ale_result" class="p-6 rounded-lg"></div>
+                </div>
+
+                <!-- Step 3: Penalty Calculation -->
+                <div id="step3" class="step-card hidden">
+                    <h2 class="text-2xl font-bold mb-4 border-b pb-2">Step 3: Calculate Potential Penalties</h2>
+                    <p class="text-sm text-gray-600 mb-4">Because you are an Applicable Large Employer (ALE), you are subject to potential penalties if you don't offer compliant coverage.</p>
+                    <div class="space-y-4">
+                         <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Total Full-Time Employees (including FTEs)</label>
+                            <input type="number" id="penalty_ft_employees" class="input-field bg-gray-100" readonly>
+                        </div>
+                        <div>
+                            <label for="subsidized_employees" class="block text-sm font-medium text-gray-700 mb-1">Number of FT Employees Receiving a Marketplace Subsidy</label>
+                            <input type="number" id="subsidized_employees" class="input-field" placeholder="e.g., 5">
+                        </div>
+                    </div>
+                     <div class="mt-6 flex justify-between">
+                        <button onclick="goBack('step2', 'step3')" class="btn btn-secondary">Back</button>
+                        <button onclick="calculatePenalties()" class="btn btn-primary">Calculate Penalties</button>
+                    </div>
+                    <div id="penalty_results" class="hidden mt-6"></div>
+                </div>
+
+                <!-- Step 4: Contribution Calculation -->
+                <div id="step4" class="step-card hidden">
+                    <h2 class="text-2xl font-bold mb-4 border-b pb-2">Step 4: Calculate Required Contribution</h2>
+                     <p class="text-sm text-gray-600 mb-4">To avoid penalties, your plan must be affordable for your employees. This is tested against each individual, so it's safest to base calculations on your lowest-paid full-time employee.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="total_premium" class="block text-sm font-medium text-gray-700 mb-1">Total Monthly Premium</label>
+                            <input type="number" id="total_premium" class="input-field" placeholder="e.g., 450">
+                            <p class="text-xs text-gray-500 mt-1">Full cost of your lowest-cost, self-only plan.</p>
+                        </div>
+                        <div>
+                            <label for="employee_wage" class="block text-sm font-medium text-gray-700 mb-1">Lowest-Paid FT Employee's Wage</label>
+                            <input type="number" id="employee_wage" class="input-field" placeholder="e.g., 18.50 or 38000">
+                             <p class="text-xs text-gray-500 mt-1">Enter hourly rate OR annual W-2 wages.</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                        <button onclick="goBack('step3', 'step4')" class="btn btn-secondary">Back</button>
+                        <button onclick="calculateContributions()" class="btn btn-primary">Calculate Contributions</button>
+                    </div>
+                    <div id="contribution_results" class="hidden mt-6"></div>
+                </div>
+
+                <!-- Step 5: Final Summary & State Info -->
+                <div id="step5" class="step-card hidden">
+                    <h2 class="text-2xl font-bold mb-4 border-b pb-2">Step 5: Final Summary & State Considerations</h2>
+                    <div id="final_summary" class="p-6 bg-blue-50 border border-blue-200 rounded-lg space-y-3"></div>
+                    <div class="mt-6">
+                        <label for="state_select" class="block text-sm font-medium text-gray-700 mb-1">Select Your Primary State of Business:</label>
+                        <select id="state_select" onchange="showStateInfo()" class="input-field">
+                            <option value="">-- Select a State --</option>
+                            <!-- Options will be populated by JS -->
+                        </select>
+                    </div>
+                    <div id="state_info" class="hidden mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg"></div>
+                     <div class="mt-6 flex justify-between">
+                        <button onclick="goBack('step4', 'step5')" class="btn btn-secondary">Back</button>
+                        <button onclick="startOver()" class="btn btn-primary">Start Over</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- State Management ---
+        let aleCount = 0;
+        const stateMandateInfo = {
+            'NJ': 'New Jersey has an individual mandate. This increases the likelihood that your employees will seek coverage on the state marketplace (GetCoveredNJ) if your plan is unaffordable, heightening your risk of triggering a federal penalty. You also have additional state-level reporting requirements.',
+            'CA': 'California has an individual mandate. This increases the likelihood that your employees will seek coverage on the state marketplace (Covered California) if your plan is unaffordable, heightening your risk of triggering a federal penalty. You also have additional state-level reporting requirements.',
+            'MA': 'Massachusetts has an individual mandate. This increases the likelihood that your employees will seek coverage on the state marketplace (Health Connector) if your plan is unaffordable, heightening your risk of triggering a federal penalty. You also have additional state-level reporting requirements.',
+            'RI': 'Rhode Island has an individual mandate. This increases the likelihood that your employees will seek coverage on the state marketplace (HealthSource RI) if your plan is unaffordable, heightening your risk of triggering a federal penalty. You also have additional state-level reporting requirements.',
+            'VT': 'Vermont has an individual mandate, though it currently does not have a financial penalty. It does require residents to have coverage and may have reporting requirements.',
+            'DC': 'The District of Columbia has an individual mandate. This increases the likelihood that your employees will seek coverage on the state marketplace (DC Health Link) if your plan is unaffordable, heightening your risk of triggering a federal penalty. You also have additional state-level reporting requirements.'
+        };
+        const states = [ 'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'];
+        
+        window.onload = () => {
+            const stateSelect = document.getElementById('state_select');
+            states.forEach(state => {
+                const option = document.createElement('option');
+                option.value = state;
+                option.textContent = state;
+                stateSelect.appendChild(option);
+            });
+        };
+
+        // --- Navigation ---
+        function showStep(stepId) {
+            document.querySelectorAll('.step-card').forEach(step => step.classList.add('hidden'));
+            document.getElementById(stepId).classList.remove('hidden');
+        }
+
+        function goBack(fromStep, toStep) {
+            showStep(fromStep);
+        }
+        
+        function startOver() {
+            location.reload();
+        }
+
+        // --- Calculation Logic ---
+        const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+        function determineALE() {
+            const ftEmployees = parseInt(document.getElementById('full_time_employees').value) || 0;
+            const ptHours = parseInt(document.getElementById('part_time_hours').value) || 0;
+            const fteCount = ptHours / 120;
+            aleCount = ftEmployees + fteCount;
+
+            const resultDiv = document.getElementById('ale_result');
+            let content = `
+                <p><strong>Full-Time Employees:</strong> ${ftEmployees}</p>
+                <p><strong>Full-Time Equivalent (FTE) Employees:</strong> ${fteCount.toFixed(2)} (from ${ptHours} part-time hours)</p>
+                <hr class="my-4">
+                <p class="font-bold text-xl">Total Employee Count for ACA: ${aleCount.toFixed(2)}</p>
+            `;
+
+            if (aleCount >= 50) {
+                resultDiv.className = 'p-6 rounded-lg bg-green-50 border border-green-200 text-green-800';
+                content += `<p class="mt-4 font-semibold">Conclusion: You are considered an Applicable Large Employer (ALE) and are subject to the ACA employer mandate.</p>
+                            <div class="mt-6 text-right"><button onclick="showStep('step3')" class="btn btn-primary">Next: Calculate Penalties</button></div>`;
+                document.getElementById('penalty_ft_employees').value = Math.floor(aleCount);
+            } else {
+                resultDiv.className = 'p-6 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-800';
+                content += `<p class="mt-4 font-semibold">Conclusion: You are likely NOT an Applicable Large Employer (ALE). Based on these numbers, you are not subject to the ACA employer mandate penalties.</p>
+                            <div class="mt-6 text-right"><button onclick="startOver()" class="btn btn-secondary">Start Over</button></div>`;
+            }
+            resultDiv.innerHTML = content;
+            showStep('step2');
+        }
+
+        function calculatePenalties() {
+            const ftEmployees = parseInt(document.getElementById('penalty_ft_employees').value) || 0;
+            const subsidizedEmployees = parseInt(document.getElementById('subsidized_employees').value) || 0;
+            const penaltyA_rate = 2900;
+            const penaltyB_rate = 4350;
+            const employeeAllowance = 30;
+
+            const penaltyA_calc = ftEmployees > employeeAllowance ? (ftEmployees - employeeAllowance) * penaltyA_rate : 0;
+            const penaltyB_calc = subsidizedEmployees * penaltyB_rate;
+            const finalPenaltyB = Math.min(penaltyB_calc, penaltyA_calc > 0 ? penaltyA_calc : Infinity);
+            
+            const resultsDiv = document.getElementById('penalty_results');
+            resultsDiv.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+                        <h3 class="text-xl font-semibold text-red-800">Potential Penalty A</h3>
+                        <p class="text-sm text-red-600 mt-1 mb-4">(Not Offering Coverage)</p>
+                        <p class="text-4xl font-bold text-red-700">${formatter.format(penaltyA_calc)}</p>
+                    </div>
+                    <div class="bg-yellow-50 border border-yellow-300 rounded-xl p-6">
+                        <h3 class="text-xl font-semibold text-yellow-800">Potential Penalty B</h3>
+                        <p class="text-sm text-yellow-600 mt-1 mb-4">(Unaffordable Coverage)</p>
+                        <p class="text-4xl font-bold text-yellow-700">${formatter.format(penaltyA_calc === 0 ? 0 : finalPenaltyB)}</p>
+                    </div>
+                </div>
+                <p class="text-center text-sm text-gray-500 mt-4">*An employer is only liable for one penalty, not both.</p>
+                <div class="mt-6 text-right"><button onclick="showStep('step4')" class="btn btn-primary">Next: Calculate Contributions</button></div>
+            `;
+            resultsDiv.classList.remove('hidden');
+        }
+
+        function calculateContributions() {
+            const AFFORDABILITY_PERCENT = 0.0839;
+            const FPL_ANNUAL = 15060;
+            const ROP_HOURS = 130;
+            const totalPremium = parseFloat(document.getElementById('total_premium').value) || 0;
+            const employeeWage = parseFloat(document.getElementById('employee_wage').value) || 0;
+
+            const resultsDiv = document.getElementById('contribution_results');
+            let content = '<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">';
+
+            // FPL
+            const maxFPL = (FPL_ANNUAL * AFFORDABILITY_PERCENT) / 12;
+            const minFPL = totalPremium > maxFPL ? totalPremium - maxFPL : 0;
+            content += createContributionCard('Federal Poverty Line', 'Simplest method, same for all employees.', maxFPL, minFPL);
+
+            // Rate of Pay
+            let maxROP = 0;
+            if (employeeWage > 0 && employeeWage < 200) {
+                maxROP = (employeeWage * ROP_HOURS) * AFFORDABILITY_PERCENT;
+            }
+            const minROP = totalPremium > maxROP ? totalPremium - maxROP : 0;
+            content += createContributionCard('Rate of Pay', 'Based on hourly wage x 130 hours.', maxROP, minROP);
+
+            // W-2
+            let maxW2 = 0;
+            if (employeeWage > 1000) {
+                maxW2 = (employeeWage * AFFORDABILITY_PERCENT) / 12;
+            }
+            const minW2 = totalPremium > maxW2 ? totalPremium - maxW2 : 0;
+            content += createContributionCard('W-2 Wages', 'Based on annual W-2, Box 1 wages.', maxW2, minW2);
+            
+            content += `</div><div class="mt-6 text-right"><button onclick="showStep('step5')" class="btn btn-primary">Next: Final Summary</button></div>`;
+            resultsDiv.innerHTML = content;
+            resultsDiv.classList.remove('hidden');
+            
+            document.getElementById('final_summary').innerHTML = `
+                <p><strong>Your Status:</strong> You are an Applicable Large Employer (ALE) with ${Math.floor(aleCount)} full-time employees (including equivalents).</p>
+                <p><strong>To Avoid Penalties:</strong> You must offer affordable, minimum-value coverage to at least 95% of your full-time employees.</p>
+                <p><strong>Affordability Guide:</strong> The contribution required from your employees for the lowest-cost plan cannot exceed the amounts calculated in the previous step. It's safest to use a method that covers your lowest-paid employee.</p>
+            `;
+        }
+
+        function createContributionCard(title, subtitle, employeeShare, employerShare) {
+            return `
+                <div class="result-card bg-gray-50 border border-gray-200 rounded-xl p-6 text-center">
+                    <h3 class="text-lg font-semibold text-gray-800">${title}</h3>
+                    <p class="text-xs text-gray-500 mb-4 h-8">${subtitle}</p>
+                    <p class="text-sm text-gray-600">Max Employee Share:</p>
+                    <p class="text-2xl font-bold text-blue-600 mb-4">${formatter.format(employeeShare)}</p>
+                    <p class="text-sm text-gray-600">Min Employer Share:</p>
+                    <p class="text-2xl font-bold text-green-600">${formatter.format(employerShare)}</p>
+                </div>
+            `;
+        }
+        
+        function showStateInfo() {
+            const state = document.getElementById('state_select').value;
+            const infoDiv = document.getElementById('state_info');
+            if (stateMandateInfo[state]) {
+                infoDiv.innerHTML = `<p><strong class="font-semibold">Note for ${state}:</strong> ${stateMandateInfo[state]}</p>`;
+                infoDiv.classList.remove('hidden');
+            } else {
+                infoDiv.classList.add('hidden');
+            }
+        }
+
+    </script>
+</body>
+</html>
