@@ -253,8 +253,8 @@
         }
 
         function calculateContributions() {
-            const AFFORDABILITY_PERCENT = 0.0839;
-            const FPL_ANNUAL = 15060;
+            const AFFORDABILITY_PERCENT = 0.0902; // CORRECTED: Official 2025 rate
+            const FPL_ANNUAL = 15060; // 2024 FPL for mainland US, used for 2025 planning
             const ROP_HOURS = 130;
             const totalPremium = parseFloat(document.getElementById('total_premium').value) || 0;
             const employeeWage = parseFloat(document.getElementById('employee_wage').value) || 0;
